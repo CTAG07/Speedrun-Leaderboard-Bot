@@ -21,22 +21,15 @@ def convertrun(self, run):
         tempuserids.append(tempuser)
     return(tempuserids, runtime)
 
-async def getruns(self, categories = None):
-    if categories == None:
-        categories = self.categories
+async def getruns(self):
+    categories = []
     records = []
-    strings = [str(i) for i in self.game.categories]
+    for i in self.game.categories:
+        if i.type == "per-game":
+            categories.append(i)
     for i in categories:
-        tempnumber = -1
-        for j in self.game.categories:
-            j = str(j)
-            if tempnumber == -1:
-                tempnumber = j.find(i)
-            if not tempnumber == -1:
-                tempnumber = strings.index(j)
-                break
-        print(tempnumber)
-        runs = (self.api.get(endpoint="leaderboards/m1mn0ekd/category/" + self.game.categories[tempnumber].id)).get("runs")
+        runs = self.api.get(endpoint="leaderboards/m1mn0ekd/category/" + i.id)
+        runs = runs.get("runs")
         for d in range(4):
             for f in runs:
                 f = f.get("run")
@@ -53,9 +46,9 @@ async def sendformat(self, records, ctx):
     message = "Records as of " + now.strftime("%d/%m/%Y %H:%M:%S") + ":\n"
     message += "```\n"
     for i in range(int(len(records)/3)):
-        tempnumber1 = message.find(str(records[i*3]))
+        tempnumber1 = message.find(records[i*3].name)
         if not tempnumber1 > -1:
-            message += "\n" + records[i*3] + ":\n\n"
+            message += "\n" + records[i*3].name + ":\n\n"
         for e in records[i*3+1]:
             if records[i*3+1].index(e) == 0:
                 message += e
@@ -66,6 +59,5 @@ async def sendformat(self, records, ctx):
         message += " with a time of " + str(int(min)) + ":" + str(int(sec)) + "\n\n"
     message += "Credits to CTAG07#6191 for making the bot\n"
     message += "```"
-    print(message)
     await ctx.send(content = message, delete_after = 3600)
     

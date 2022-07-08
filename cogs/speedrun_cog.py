@@ -12,7 +12,7 @@ class SpeedrunCommands(commands.Cog, name='Speedrun Commands'):
         '''
         The default check for this cog whenever a command is used. Returns True if the command is allowed.
         '''
-        return ctx.author.id == self.bot.author_id
+        return any(ctx.author.id == i for i in self.bot.author_ids)
 
     @commands.command(name="run") 
     async def run(self, ctx):
@@ -26,24 +26,6 @@ class SpeedrunCommands(commands.Cog, name='Speedrun Commands'):
     async def setgame(self, ctx, gamename = "apeirophobia"):
         self.api = srcomapi.SpeedrunCom(); self.api.debug = 1
         self.game = self.api.search(srcomapi.datatypes.Game, {"name": gamename})[0]
-        if gamename == "apeirophobia":
-            self.categories = ["Any%", "Classic", "Any% Nightmare", "Modern", "Reality"]
-        else:
-            self.categories = []
-
-    @commands.command(name="addcategory") 
-    async def addcategory(self, ctx, category):
-        if any(i == category for i in self.categories):
-            await ctx.send("Category already added!")
-        else:
-            self.categories.append(category)
-
-    @commands.command(name="removecategory") 
-    async def removecategory(self, ctx, category):
-        if any(i == category for i in self.categories):
-            self.categories.remove(category)
-        else:
-            await ctx.send("No such category exists")
 
 def setup(bot):
     bot.add_cog(SpeedrunCommands(bot))
